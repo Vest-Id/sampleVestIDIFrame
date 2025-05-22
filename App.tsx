@@ -65,8 +65,8 @@ function App(): React.JSX.Element {
         backgroundColor={backgroundStyle.backgroundColor}
       />
       <VestIDIframe 
-        apiKey="ABC123-EXAMPLE-KEY"
-        userEmail="user@example.com"
+        apiKey="h9ZERjn1HZitBgIi"
+        userEmail="fltrein@yahoo.com"
         campaign={true}
         fullScreen={false}
       />
