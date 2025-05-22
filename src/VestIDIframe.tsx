@@ -13,7 +13,7 @@ type VestIDIframeProps = {
 const VestIDIframe: React.FC<VestIDIframeProps> = ({ apiKey, userEmail, campaign, fullScreen }) => {
   const webViewRef = useRef<WebView>(null);
   // Puedes pasar los parámetros por querystring si tu web lo requiere
-  const initialUrl = `https://test-secure.vest-id.com/accounts/login?apiKey=${encodeURIComponent(apiKey)}&userEmail=${encodeURIComponent(userEmail)}&campaign=${campaign}&fullScreen=${fullScreen}`;
+  const initialUrl = `https://5340-2806-230-103c-3c6c-9c1c-b164-e9c8-16cf.ngrok-free.app/accounts/login?apiKey=${encodeURIComponent(apiKey)}&userEmail=${encodeURIComponent(userEmail)}&campaign=${campaign}&fullScreen=${fullScreen}`;
 
 
   // Function to initiate NFC Scan, called from WebView via postMessage
