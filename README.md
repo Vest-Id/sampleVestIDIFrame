@@ -1,97 +1,175 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-# Getting Started
+![Logo](./assets/logo.png)
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+# VestIDIframe React Native Component
 
-## Step 1: Start Metro
+This project demonstrates how to embed a secure WebView iFrame with native NFC scanning capabilities for both iOS and Android using React Native.
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+---
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 0. Copy the Component File
 
-```sh
-# Using npm
-npm start
+First, copy the file [`src/VestIDIframe.tsx`](./src/VestIDIframe.tsx) from this repository to your project's source directory. For example:
 
-# OR using Yarn
-yarn start
+```
+cp ./src/VestIDIframe.tsx <your-project>/src/VestIDIframe.tsx
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## 1. Library Installation
 
-### Android
+Install the required dependencies for NFC and WebView support:
 
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```bash
+npm install react-native-webview react-native-nfc-manager
+# or
+yarn add react-native-webview react-native-nfc-manager
 ```
+
+For iOS, install CocoaPods:
+```bash
+cd ios
+pod install
+cd ..
+```
+
+---
+
+## 2. Native NFC Configuration
 
 ### iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+1. **Enable NFC capability in Xcode:**
+   - Open your project in Xcode.
+   - Go to your app target > "Signing & Capabilities".
+   - Click "+ Capability" and add "Near Field Communication Tag Reading".
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+2. **Edit `Info.plist`:**
+   Add the following keys:
+   ```xml
+   <key>NFCReaderUsageDescription</key>
+   <string>This app uses NFC to scan tags.</string>
+   <key>com.apple.developer.nfc.readersession.formats</key>
+   <array>
+     <string>NDEF</string>
+   </array>
+   ```
+   If you use HTTP or local IPs in development, add exceptions under `NSAppTransportSecurity`:
+   ```xml
+   <key>NSAppTransportSecurity</key>
+   <dict>
+     <key>NSExceptionDomains</key>
+     <dict>
+       <key>secure.vest-id.com</key>
+       <dict>
+         <key>NSExceptionAllowsInsecureHTTPLoads</key>
+         <true/>
+         <key>NSIncludesSubdomains</key>
+         <true/>
+       </dict>
+       <!-- Add other IPs/domains as needed -->
+     </dict>
+   </dict>
+   ```
 
-```sh
-bundle install
+### Android
+
+1. **Edit `android/app/src/main/AndroidManifest.xml`:**
+   Add these permissions:
+   ```xml
+   <uses-permission android:name="android.permission.NFC" />
+   <uses-feature android:name="android.hardware.nfc" android:required="true" />
+   <uses-permission android:name="android.permission.INTERNET" />
+   ``
+
+---
+
+## 3. Component Usage
+
+Import and use the `VestIDIframe` component in your React Native app:
+
+```tsx
+import VestIDIframe from './src/VestIDIframe';
+
+<VestIDIframe
+  apiKey="ABC123-EXAMPLE-KEY"
+  userEmail="user@example.com"
+  campaign={true}
+  fullScreen={false}
+/>
 ```
 
-Then, and every time you update your native dependencies, run:
+---
 
-```sh
-bundle exec pod install
+## 4. How the iFrame Works
+
+- The component renders a WebView pointing to your web app, passing parameters via the query string.
+- It injects a JavaScript bridge so your web app can call `window.scanNFC()` to trigger a native NFC scan.
+- When a tag is scanned, the native code calls `window.onNFCScanned(tagData)` in your web app with the tag info.
+- If an error occurs, it calls `window.onNFCScanError(errorMessage)`.
+
+### Example: Calling NFC from your Web App
+
+```js
+// To trigger an NFC scan from your web page:
+window.scanNFC && window.scanNFC();
+
+// To receive the result:
+window.onNFCScanned = function(tagData) {
+  alert('NFC Tag: ' + JSON.stringify(tagData));
+};
+window.onNFCScanError = function(error) {
+  alert('NFC Error: ' + error);
+};
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+---
 
-```sh
-# Using npm
-npm run ios
+## 5. Component Parameters
 
-# OR using Yarn
-yarn ios
-```
+| Prop        | Type     | Required | Description                                              |
+|-------------|----------|----------|----------------------------------------------------------|
+| apiKey      | string   | Yes      | API key for club authenticatio and rebranding.           |
+| userEmail   | string   | Yes      | Email of the current user to autoauthenticate.           |
+| campaign    | boolean  | Yes      | Show only campaign page.                                 |
+| fullScreen  | boolean  | Yes      | Display all the webapp including the header and footer.  |
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+All parameters are passed to the web app via the query string in the WebView URL.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+---
 
-## Step 3: Modify your app
+## 6. Running the Demo App
 
-Now that you have successfully run the app, let's make changes!
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-org/NFCAPP.git
+   cd NFCAPP/NFCAPP
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+3. **Install iOS pods:**
+   ```bash
+   cd ios
+   pod install
+   cd ..
+   ```
+4. **Run the app:**
+   - For iOS:
+     ```bash
+     npx react-native run-ios
+     ```
+   - For Android:
+     ```bash
+     npx react-native run-android
+     ```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
 
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+For any questions or improvements, please open an issue or contact the maintainer.
