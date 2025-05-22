@@ -2,6 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>localhost</string>
+		<string>secure.vest-id.com</string>
+		<string>localhost:3001</string>
+		<string>test-secure.vest-id.com</string>
+		<string>localhost:3002</string>
+		<string>169.254.86.37</string>
+		<string>169.254.86.37:3002</string>
+		<string>192.168.1.15:3002</string>
+		<string>192.168.1.15</string>
+	</array>
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>
 		<string>TAG</string>
