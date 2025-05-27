@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, StyleSheet, Platform, Alert } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
@@ -12,12 +12,19 @@ type VestIDIframeProps = {
 
 const VestIDIframe: React.FC<VestIDIframeProps> = ({ apiKey, userEmail, campaign, fullScreen }) => {
   const webViewRef = useRef<WebView>(null);
+  const [isScanningNFC, setIsScanningNFC] = useState(false);
   // Puedes pasar los parámetros por querystring si tu web lo requiere
-  const initialUrl = `https://test-secure.vest-id.com/accounts/login?apiKey=${encodeURIComponent(apiKey)}&userId=${encodeURIComponent(userEmail)}&campaign=${campaign}&fullScreen=${fullScreen}`;
+  const initialUrl = `https://test-secure.vest-id.com/accounts/login`;
 
 
   // Function to initiate NFC Scan, called from WebView via postMessage
   const handleScanNFC = async () => {
+    if (isScanningNFC) {
+      console.log('NFC scan operation already in progress.');
+      return;
+    }
+    setIsScanningNFC(true);
+
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
@@ -29,9 +36,12 @@ const VestIDIframe: React.FC<VestIDIframeProps> = ({ apiKey, userEmail, campaign
             .match(/.{1,2}/g)
             ?.join(':')
             .toUpperCase() || uid;
-        const tagDataForWebView = { id: formattedUid, type: tag.type, ndefMessage: tag.ndefMessage };
 
-       
+
+        const tagDataForWebView = { id: formattedUid, type: 'NFC', ndefMessage: 'ndefMessage' };
+        // const tagDataForWebView = { id: formattedUid, type: tag.type, ndefMessage: tag.ndefMessage };
+
+
         webViewRef.current?.injectJavaScript(`
           if (typeof onNFCScanned === 'function') {
             onNFCScanned(${JSON.stringify(tagDataForWebView)});
@@ -40,15 +50,17 @@ const VestIDIframe: React.FC<VestIDIframeProps> = ({ apiKey, userEmail, campaign
         `);
       }
     } catch (ex: any) {
-      Alert.alert('NFC Error', ex.message || 'Failed to scan NFC tag.');
+      // Alert.alert('NFC Error', ex.message || 'Failed to scan NFC tag. from app');
       webViewRef.current?.injectJavaScript(`
         if (typeof onNFCScanError === 'function') {
           onNFCScanError(${JSON.stringify(ex.message || String(ex))});
         }
         true;
       `);
+  
     } finally {
       NfcManager.cancelTechnologyRequest().catch(() => 0);
+      setIsScanningNFC(false);
     }
   };
 

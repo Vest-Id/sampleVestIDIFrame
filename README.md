@@ -1,4 +1,3 @@
-
 ![Logo](./assets/logo.png)
 
 # VestIDIframe React Native Component
@@ -81,7 +80,7 @@ cd ..
    <uses-permission android:name="android.permission.NFC" />
    <uses-feature android:name="android.hardware.nfc" android:required="true" />
    <uses-permission android:name="android.permission.INTERNET" />
-   ``
+   ```
 
 ---
 
@@ -170,6 +169,10 @@ All parameters are passed to the web app via the query string in the WebView URL
 
 ---
 
+## Demo APK
 
+[Download Demo APK](https://drive.google.com/file/d/1WcxWRuFJkFcir-hY7vpalP2BgL2KFJdM/view?usp=share_link)
+
+---
 
 For any questions or improvements, please open an issue or contact the maintainer.
